@@ -1,0 +1,46 @@
+//WARNING: Don't use tabs!!! They can lead to wrong interpretation of your design file!
+
+Draw Priority:
+1. current scene
+2. scene 0
+3. popup elements
+
+scene:
+	...
+;
+
+//To create a scene. Scene 0 is (nearly) always shown and always on top!
+//Every scene can be blacklisted!
+
+obj-type $ objName param1 ... paramn | x y width height | type
+									 +-------^----------+
+											/ \
+ Sometimes not needed -----------------------|
+
+//Used to create an object. Can only be used in a scene.
+//Type can be for example:  0 = filled button
+							1 = empty button
+//Types are definied in the used theme... If a type can't be executed 0
+//should be automaticlly used(-> Theme)!
+
+on-event:
+	...
+;
+
+//Displays an object only if the vent was executed. Useally used for
+//popup elements!
+//Only outside of scenes!!!
+
+after-event:
+	...
+;
+
+//Toggled after an set time. Used for fade outs after time.
+//Can only be used inside on-event!
+//Time is set in C++ source code!
+
+fade-in objName
+and
+fade-out objName
+
+//Fading an object in or out... Animation is set in the used Theme!
