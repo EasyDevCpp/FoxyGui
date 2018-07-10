@@ -1,112 +1,68 @@
-//Include-Depandancies(cleared later)
-#include <SDL2/SDL.h>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <fstream>
+#ifndef __FoxyGui
+#define __FoxyGui
 
-//Internal-Depandancies(cleared later)
-#include "foxy-main.h"
-#include "foxy-scene.h"
-#include "foxy-timer.h"
-#include "foxy-mouse.h"
+/*
+ * Information:
+ * This class is used to implement the Mainframe on a class...
+ * Main functions and capabilities are decleared here...
+ *
+ */
 
-class FGui {
+class FoxyGui {
 private:
-	SDL_Window* wnd_ptr;
-	SDL_Renderer* ren_ptr;
-	SDL_Event event;
-	std::vector<std::string> design_content;
-	std::vector<std::string> on_event;
-	std::vector<std::string> after_event;
-	std::vector<FScene*> scenes;
-	std::vector<bool> scene_whitelist;
-	int active_scene;
-	bool close;
-	bool design_loaded;
-	FMouse mouse;
+  SDL_Ptr<SDL_Window*> wnd_ptr;
+  SDL_Ptr<SDL_Renderer*> ren_ptr;
+  SDL_Ptr<FoxyContainer*> container;
+  SDL_Event event;
 
 public:
-	FGui() {
-		wnd_ptr=NULL;
-		ren_ptr=NULL;
-		active_scene=1; //0 reserved for always on-top elements
-		close=false;
-		design_loaded=false;
-	}
-	~FGui() {
-		SDL_DestroyRenderer(ren_ptr);
-		SDL_DestroyWindow(wnd_ptr);
-	}
+  FoxyGui() {
+    //Empty
+  }
+  ~FoxyGui() {
+    SDL_Quit();
+  }
+  //Intresting: type defines the Window type...
+  //            0 = Theme-Window, close;
+  //            1 = Theme-Window, close + minimize + maximize
+  //            2 = Theme-Window, close + minimize + maximize + resizeable
+  //            3 = Theme-Window, close + minimize + maximize + fullscreen
+  //            4 = Fullscreen-Mode
+  //            5 = Normal-Window
+  void create(std::string title,int x,int y,int width,int height,int type=0) {
+    SDL_Init(SDL_INIT_EVERYTHING);
 
-	//Initial functions
-	void setWindowData(std::string title,int x,int y,int width,int height,int flags=0) {
-		if(wnd_ptr==NULL) {
-			wnd_ptr=SDL_CreateWindow(title.c_str(),x,y,width,height,SDL_WINDOW_BORDERLESS);
-			ren_ptr=SDL_CreateRenderer(wnd_ptr,-1,0);
-		} else {
-			SDL_SetWindowTitle(wnd_ptr,title.c_str());
-			SDL_SetWindowPosition(wnd_ptr,x,y);
-			SDL_SetWindowSize(wnd_ptr,width,height);
-		}
-	}
-	std::string loadDesignFile(std::string path) {
-		std::string msg;
-		bool error=false;
-		std::ifstream file;
+    wnd_ptr=SDL_MakePtr<SDL_Window*>(SDL_CreateWindow(title.c_str(),x,y,width,height,SDL_WINDOW_SHOWN));
+    ren_ptr=SDL_MakePtr<SDL_Renderer*>(SDL_CreateRenderer(*wnd_ptr,-1,0));
 
-		if(!design_loaded) {
-			file.open(path,std::ios_base::in);
-			if(file.is_open()) {
-				std::string temp;
-				while(!file.eof()) {
-					file>>temp;
-					design_content.push_back(temp);
-				}
-
-				int scene_id=0;
-				bool scene_sec=false;
-				bool event_sec=false;
-
-				for(auto t: design_content) {
-					if(!scene_sec&&!event_sec) {
-						if(t=="scene:") {
-							scenes.push_back(new FScene(wnd_ptr,ren_ptr,&close));
-							scene_sec=true;
-							if(event_sec) { msg+="[WARNING] on-event section was not properly closed!\n";error=true;event_sec=false; }
-						}
-					} else {
-						if(t==";") {
-							if(scene_sec) scene_sec=false;
-							if(event_sec) event_sec=false;
-						}
-						if(scene_sec) {
-							if(t=="button") {
-
-							} else if(t=="msgbox") {
-
-							} else {
-								msg+="[WARNING] Unknown object type!\n";
-								error=true;
-							}
-						}
-						if(event_sec) {
-
-						}
-					}
-				}
-
-				file.close();
-			} else {
-				msg+="[ERROR] File could not be found!\nFatal error... exit.\nSeg-Fault awaits you...";
-				error=true;
-			}
-		} else {
-			msg+="[WARNING] Only one design-file per session allowed!\nIgnored... exit.";
-			error=true;
-		}
-
-		if(error) return msg;
-		else return "[INFO] Initialization successful! No errors found.";
-	}
+    container=SDL_MakePtr<FoxyContainer*>(new FoxyContainer());
+    (*container)->setWindow(wnd_ptr);
+    (*container)->setRenderer(ren_ptr);
+  }
+  void close() {
+    (*container)->setExit(true);
+  }
+  virtual void eventLoop() {}; //MUST BE OVERRIDDEN IN YOUR CODE!
+  virtual void onExit() {
+    //Ready for your turn...
+    //Don't forget close() somewhere!!!
+    close();
+  }
+  void show() {
+    do {
+      while(SDL_PollEvent(*SDL_MakePtr<SDL_Event*>(&event))) {
+        if(event.type==SDL_QUIT) {
+          onExit();
+        }
+      }
+      SDL_RenderClear(*ren_ptr);
+      SDL_RenderPresent(*ren_ptr);
+      SDL_Delay(10);
+    } while(!(*container)->getExit());
+  }
+  std::string loadDesign(std::string path) {return "null";}
+  void triggerEvent(int id,int timeout) {}
+  //FoxyObject* getObject(std::string name) {}
 };
+
+#endif

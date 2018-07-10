@@ -1,21 +1,20 @@
-#include "../lib/foxy-main.h"
-#include "../lib/themes/default/default.h" //The Theme you want to be used
-#include "../lib/foxy-gui.h"
+#include "../lib/foxy.h"
+//#include "../lib/themes/default/default.h" //The Theme you want to be used
+//#include "../lib/foxy-gui.h"
 
-class App: public FGui {
+class App: public FoxyGui {
+public:
 	App() {
-		setWindowData("Example",SDL_WINDOWPOS_DEFAULT,SDL_WINDOWPOS_DEFAULT,500,500);
-		loadDesignFile("target.design");
+		create("Example",SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,500,500);
+		loadDesign("target.design");
+		show();
 	}
-	void loop() {
-		if(getObj("buttonMsg")->getEvent()==1) {
-			triggerEvent(0,60);
-		}
+	void eventLoop() {
+		std::cout << "test" << std::endl;
 	}
 };
 
 int main() {
 	App app;
-	app.show();
 	return 0;
 }
