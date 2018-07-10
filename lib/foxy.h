@@ -18,11 +18,13 @@
 #endif
 
 #include "sdl-ptr.hpp"
+#include "sdl-ext.hpp"
 
 #include "foxy-timer.h"
 #include "foxy-mouse.h"
 #include "foxy-container.h"
+#include "foxy-object.h"
 
-#include "foxy-gui.h"
+#include "foxy-widgets.h"
 
 #endif

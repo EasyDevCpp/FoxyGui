@@ -14,6 +14,8 @@ private:
   SDL_Ptr<SDL_Renderer*> ren_ptr;
   SDL_Ptr<FoxyContainer*> container;
   SDL_Event event;
+  SDL_Ptr<WindowButtons*> wnd_btns;
+  int wnd_type;
 
 public:
   FoxyGui() {
@@ -25,19 +27,36 @@ public:
   //Intresting: type defines the Window type...
   //            0 = Theme-Window, close;
   //            1 = Theme-Window, close + minimize + maximize
-  //            2 = Theme-Window, close + minimize + maximize + resizeable
-  //            3 = Theme-Window, close + minimize + maximize + fullscreen
-  //            4 = Fullscreen-Mode
-  //            5 = Normal-Window
+  //            2 = Theme-Window, fullscreen
+  //            3 = Fullscreen-Mode
+  //            4 = Normal-Window
+  //            5 = Normal-Window, resizable
   void create(std::string title,int x,int y,int width,int height,int type=0) {
     SDL_Init(SDL_INIT_EVERYTHING);
 
-    wnd_ptr=SDL_MakePtr<SDL_Window*>(SDL_CreateWindow(title.c_str(),x,y,width,height,SDL_WINDOW_SHOWN));
+    Uint32 flags;
+    wnd_type=type;
+    if(type==3) {
+      flags=SDL_WINDOW_FULLSCREEN;
+    } else if(type==4) {
+      flags=SDL_WINDOW_SHOWN;
+    } else if(type==5) {
+      flags=SDL_WINDOW_SHOWN|SDL_WINDOW_RESIZABLE;
+    } else {
+      flags=SDL_WINDOW_BORDERLESS;
+      if(type==2) {
+        flags=flags|SDL_WINDOW_FULLSCREEN_DESKTOP;
+      }
+    }
+
+    wnd_ptr=SDL_MakePtr<SDL_Window*>(SDL_CreateWindow(title.c_str(),x,y,width,height,flags));
     ren_ptr=SDL_MakePtr<SDL_Renderer*>(SDL_CreateRenderer(*wnd_ptr,-1,0));
 
     container=SDL_MakePtr<FoxyContainer*>(new FoxyContainer());
     (*container)->setWindow(wnd_ptr);
     (*container)->setRenderer(ren_ptr);
+
+    wnd_btns=SDL_MakePtr<WindowButtons*>(new WindowButtons(container));
   }
   void close() {
     (*container)->setExit(true);
@@ -56,6 +75,7 @@ public:
         }
       }
       SDL_RenderClear(*ren_ptr);
+      (*wnd_btns)->draw();
       SDL_RenderPresent(*ren_ptr);
       SDL_Delay(10);
     } while(!(*container)->getExit());

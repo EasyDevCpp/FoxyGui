@@ -19,7 +19,7 @@ public:
 		m_state=SDL_GetMouseState(&m_x,&m_y);
 	}
 	bool isHovering(int x,int y,int w,int h) {return m_x>=x&&m_x<=x+w&&m_y>=y&&m_y<=y+h;}
-	int isClicked() {
+	int mouseState() {
 		if(timer.getDiff()>=180) {
 			timer.start();
 			return (int)m_state;
