@@ -1,13 +1,12 @@
-scene:	
-;
+<scene>
+</scene>
 
-scene:
-button $ buttonMsg " MsgBox " 5 5 240 40 1 \
-msgbox $ msgBox " Welcome! " " Foxy-Gui rocks! This message will disappear in 60 seconds! " 0 \
-;
+<scene>
+  <button name=buttonMsg text="MsgBox" x=5 y=5 w=240 h=40 type=1 />
+  <msgbox name=msgBox heading="Welcome!" text="Foxy-Gui rocks! This message will disappear in 60 seconds!" type=0 />
+</scene>
 
-on-event:
-fade-in msgBox \
-after-event:
-fade-out msgBox \
-; ;
+<event>
+  <on-event fadein=msgBox />
+  <after-event fadeout=msgBox />
+</event>
